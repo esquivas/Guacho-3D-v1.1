@@ -41,7 +41,7 @@ contains
 !> @brief  detonates SN
 !> @details Imposes a SN explosion centered at entered at (xc, yc, zc)
 !> @param real [out] u(neq,nxmin:nxmax,nymin:nymax,nzmin:nzmax) :
-!! conserver variables
+!! conserved variables
 !> @param real [in] xc, yc, zc : coordinates of the center of the SN
 !--------------------------------------------------------------------
 
