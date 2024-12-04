@@ -296,29 +296,33 @@ def read_lmp(nout,path='', base='lmp',trim=True, verbose=False):
     x  = np.zeros(nproc*n_mp)
     y  = np.zeros(nproc*n_mp)
     z  = np.zeros(nproc*n_mp)
-    #vx = np.zeros(nproc*n_mp)
-    #vy = np.zeros(nproc*n_mp)
-    #vz = np.zeros(nproc*n_mp)
     id = np.zeros(nproc*n_mp, dtype = 'i4')-1
+
     if (n_bins > 0) :
       SED = np.zeros( shape=(nproc*n_mp,n_bins,2) )
-      r  = np.zeros(nproc*n_mp)
-      th = np.zeros(nproc*n_mp)
+      r   = np.zeros(nproc*n_mp)
+      th  = np.zeros(nproc*n_mp)
       P1  = np.zeros( shape=(nproc*n_mp,8) )
       P2  = np.zeros( shape=(nproc*n_mp,8) )
     f.close()
+
+    total_active = 0
     #  now reopen files one by one and read data onto the arrays
     for ip in range(nproc):
         file_in = path+base+str(ip).zfill(3)+'.'+str(nout).zfill(3)+'.bin'
         f = open(file_in,'rb')
         nproc,n_mp,n_activeMP, n_bins = struct.unpack('4i',f.read(16))
-        if verbose: print(n_activeMP, ' active particles in processor ', ip)
+
+        if (verbose):
+            print(n_activeMP, ' active particles in processor ', ip)
+        total_active += n_activeMP
+
         for i_mp in range(n_activeMP):
             ii = struct.unpack('1i',f.read(4))[0]
             ii -= 1
             id[ii] = ii
             x [ii], y [ii], z [ii] = struct.unpack('3d',f.read(24))
-            #vx[ii], vy[ii], vz[ii] = struct.unpack('3d',f.read(24))
+
             if (n_bins  > 0):
               r[ii], th[ii] = struct.unpack('2d',f.read(16))
               for i_bin in range (n_bins):
@@ -329,28 +333,37 @@ def read_lmp(nout,path='', base='lmp',trim=True, verbose=False):
                 P1[ii,i_eq] = struct.unpack('1d', f.read(8) )[0]
                 P2[ii,i_eq] = struct.unpack('1d', f.read(8) )[0]
         f.close()
+    print( "Total_active LMPs ", total_active, ' in output ', nout)
+
+    #  sort the list by ID
+    indices = np.argsort(id)
+    id    = np.array(id[indices])
+    x     = np.array( x[indices])
+    y     = np.array( y[indices])
+    z     = np.array( z[indices])
     if (n_bins > 0):
-        indices = np.argsort(id)
+        r     = np.array( r[indices])
+        th    = np.array(th[indices])
         SED   = np.array(SED[indices,:,:])
         P1    = np.array(P1[indices,:])
         P2    = np.array(P2[indices,:])
-        array = np.array ( sorted(zip(id,x,y,z,r,th)) )
-        #array = np.array ( sorted(zip(id,x,y,z,vx,vy,vz)) )
+        array  = np.array( list( zip(x,y,z,r,th) ) )
     else:
-        array = np.array ( sorted(zip(id,x,y,z)) )
-        #array = np.array ( sorted(zip(id,x,y,z,vx,vy,vz)) )
+        array = np.array (list( zip(x,y,z) ) )
+
     if (trim) :
         #  trim
-        n_mp = np.size(np.where(array[:,0] < 0 ))
+        n_mp  = np.size(np.where( id < 0 ))
+        id    = id[n_mp::]
         array = array[n_mp::,:]
         if (n_bins > 0):
-            SED   = SED  [n_mp::,:]
-            P1    = P1[n_mp::,:]
-            P2    = P2[n_mp::,:]
+            SED   = SED[n_mp::,:]
+            P1    = P1 [n_mp::,:]
+            P2    = P2 [n_mp::,:]
     if (n_bins > 0):
-        return array, SED, P1, P2
+        return id, array, SED, P1, P2
     else:
-        return array
+        return id, array
 
 '''
    Converts the conserved variables to primitives for the
