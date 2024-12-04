@@ -419,8 +419,8 @@ subroutine fill_map(nxmap, nymap, nmaps, map, freq_obs,dxT , dyT,               
 
     ! This is the position on the target (centered)
     ! Integration is along Z
-    iobs=nint(xn/dxT) + nxmap/2
-    jobs=nint(yn/dyT) + nymap/2
+    iobs = int( ( xn + 0.5 )/dxT ) + nxmap/2
+    jobs = int( ( yn + 0.5 )/dyT ) + nymap/2
 
     !  Fill the maps
     if( (iobs >=1    ).and.(jobs >=1    ) .and.                                &
@@ -429,6 +429,7 @@ subroutine fill_map(nxmap, nymap, nmaps, map, freq_obs,dxT , dyT,               
       !  obtain stokes parameters of a single LP in one cells
       !  the integrals in eqs 37 and 41 of Vaidya et al. is achieved by
       !  summing all the elements in a map.
+      !  Do only shocked particles
       if (Q_MP0(i_mp, 11) /= 0) then
 
         !call get_stokes(i_mp,freq_obs,Bx,By,SI,SQ,SU)
@@ -667,7 +668,8 @@ program stokes_lp
   dyT= dxT
 
   ! chose output (fix later to input form screen)
-  filepath=trim(outputpath) !'/datos/esquivel/EXO-GUACHO/P1c/'
+  !filepath=trim(outputpath)
+  filepath = '/storage2/esquivel/lmp_snr/M1_10.0/'
 
   freq_obs  =  1.40e9 !< frequency of observation (Hz)
 
