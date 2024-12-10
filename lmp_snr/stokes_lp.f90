@@ -419,8 +419,11 @@ subroutine fill_map(nxmap, nymap, nmaps, map, freq_obs,dxT , dyT,               
 
     ! This is the position on the target (centered)
     ! Integration is along Z
-    iobs = int( ( xn + 0.5 )/dxT ) + nxmap/2
-    jobs = int( ( yn + 0.5 )/dyT ) + nymap/2
+    !iobs = int( ( xn + 0.5 )/dxT ) + nxmap/2
+    !jobs = int( ( yn + 0.5 )/dyT ) + nymap/2
+    iobs = int( xn/dxT ) + nxmap/2 + 1
+    jobs = int( yn/dyT ) + nymap/2 + 1
+
 
     !  Fill the maps
     if( (iobs >=1    ).and.(jobs >=1    ) .and.                                &
