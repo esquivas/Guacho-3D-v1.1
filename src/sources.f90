@@ -43,8 +43,8 @@ contains
 !=======================================================================
 
 !> @brief Gets position in the grid
-!> @details Gets the position and spherical radius calculated with
-!! respect to the center of the grid
+!> @details Gets the position (of the cell center) and spherical radius
+!> calculated with respect to the center of the grid
 !> @param integer [in] i : index in the X direction
 !> @param integer [in] j : index in the Y direction
 !> @param integer [in] k : index in the Z direction
